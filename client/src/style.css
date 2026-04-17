@@ -1,0 +1,713 @@
+/* ================================================================
+   URBAN THERMAL — COMPLETE DESIGN SYSTEM
+   ================================================================ */
+
+/* 1. DESIGN TOKENS */
+:root {
+  --bg-deep:    #020617;
+  --bg-dark:    #0F172A;
+  --bg-mid:     #1E293B;
+  --bg-surface: #263347;
+
+  --heat-red:    #FB7185;
+  --heat-orange: #F97316;
+  --heat-yellow: #FCD34D;
+
+  --cool-cyan:  #38BDF8;
+  --cool-green: #22C55E;
+  --cool-blue:  #60A5FA;
+
+  --text-primary:   #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted:     #64748B;
+
+  --glow-heat:   0 0 40px rgba(249,115,22,0.5);
+  --glow-cool:   0 0 40px rgba(56,189,248,0.5);
+
+  --border-glass: 1px solid rgba(255,255,255,0.08);
+  --border-heat:  1px solid rgba(249,115,22,0.25);
+
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+}
+
+/* 2. RESET */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* 3. TYPOGRAPHY */
+h1 { font-size: clamp(2.8rem, 6.5vw, 5.5rem); font-weight: 900; line-height: 1.08; letter-spacing: -0.035em; }
+h2 { font-size: clamp(2rem, 4.5vw, 3.8rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; }
+h3 { font-size: clamp(1rem, 1.8vw, 1.3rem); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+p  { font-size: clamp(0.95rem, 1.4vw, 1.1rem); color: var(--text-secondary); }
+
+.heat-text {
+  background: linear-gradient(135deg, var(--heat-orange) 0%, var(--heat-red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cool-text {
+  background: linear-gradient(135deg, var(--cool-cyan) 0%, var(--cool-green) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 4. SECTIONS (100vh scroll-snap) */
+.section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+/* 5. SHARED COMPONENTS */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2.2rem;
+  border-radius: 100px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  border: none;
+  position: relative;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--heat-orange), var(--heat-red));
+  color: #fff;
+  box-shadow: 0 4px 28px rgba(249,115,22,0.35);
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 48px rgba(249,115,22,0.55); }
+.btn-ghost {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  border: var(--border-glass);
+  backdrop-filter: blur(12px);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.12); transform: translateY(-3px); }
+
+/* Glass Panel */
+.glass-panel {
+  background: rgba(255,255,255,0.035);
+  backdrop-filter: blur(20px);
+  border: var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+}
+
+/* Section label */
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--heat-orange);
+  margin-bottom: 1rem;
+}
+
+/* Physics label (top-left badge) */
+.physics-label {
+  position: absolute;
+  top: 2.25rem;
+  left: 4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 10;
+}
+.label-icon { font-size: 1.75rem; }
+.label-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff, var(--heat-orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.label-underline {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 0;
+  height: 2.5px;
+  background: linear-gradient(90deg, var(--heat-orange), transparent);
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  border-radius: 2px;
+}
+.physics-label.active .label-underline { width: 100%; }
+
+/* Formula box */
+.formula {
+  font-family: 'Georgia', serif;
+  font-size: 1.4rem;
+  color: var(--heat-orange);
+  padding: 0.7rem 1.4rem;
+  border: var(--border-heat);
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin: 1rem 0 0.4rem;
+  background: rgba(249,115,22,0.06);
+  backdrop-filter: blur(8px);
+}
+.formula-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Physics text block */
+.physics-text {
+  position: relative;
+  z-index: 10;
+  max-width: 380px;
+  padding: 2rem;
+  margin: 0 4rem;
+  background: rgba(2,6,23,0.75);
+  backdrop-filter: blur(20px);
+  border: var(--border-glass);
+  border-radius: var(--radius-lg);
+}
+.physics-desc {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.scroll-line {
+  width: 1px;
+  height: 44px;
+  background: linear-gradient(to bottom, var(--heat-orange), transparent);
+  animation: scrollBounce 2s ease-in-out infinite;
+  border-radius: 1px;
+}
+
+/* ───────────── 6. HERO ───────────── */
+.s-hero { background: var(--bg-deep); justify-content: center; }
+
+#hero-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.city-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(rgba(249,115,22,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(249,115,22,0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: gridDrift 24s linear infinite;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  padding: 0 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--heat-orange);
+  background: rgba(249,115,22,0.1);
+  border: 1px solid rgba(249,115,22,0.25);
+  padding: 0.45rem 1.3rem;
+  border-radius: 100px;
+  margin-bottom: 2.5rem;
+  visibility: hidden;
+}
+.hero-title { display: flex; flex-direction: column; margin-bottom: 1.5rem; }
+.hero-title .line { display: block; visibility: hidden; }
+.hero-subtitle {
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  color: var(--text-secondary);
+  max-width: 620px;
+  margin: 0 auto 2.75rem;
+  line-height: 1.7;
+  visibility: hidden;
+}
+.hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; visibility: hidden; }
+
+/* ───────────── 7. PROBLEM ───────────── */
+.s-problem {
+  background: var(--bg-dark);
+  justify-content: space-between;
+  padding: 0 5rem;
+  gap: 3rem;
+}
+.city-scene {
+  flex: 1;
+  height: 75%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  max-width: 52%;
+}
+.city-scene svg { width: 100%; height: 100%; }
+.problem-text { flex: 1; max-width: 460px; }
+.reveal-h2 { margin-bottom: 2.25rem; }
+.fact-line {
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 0.7rem;
+  border-left: 2.5px solid rgba(249,115,22,0.4);
+  background: rgba(249,115,22,0.04);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  visibility: hidden;
+}
+.fact-line .heat-text { font-weight: 700; }
+
+/* ───────────── 8. RADIATION ───────────── */
+.s-radiation { background: var(--bg-dark); justify-content: flex-end; }
+.radiation-scene { position: absolute; inset: 0; z-index: 1; }
+.radiation-scene svg { width: 100%; height: 100%; }
+
+/* ───────────── 9. CONDUCTION ───────────── */
+.s-conduction { background: #0a1628; justify-content: flex-end; }
+#conduction-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.conduction-overlay {
+  position: absolute;
+  bottom: 2rem;
+  right: 28rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.heat-scale { display: flex; align-items: center; gap: 0.5rem; }
+.scale-bar {
+  width: 120px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #38BDF8, #FCD34D, #F97316, #FB7185);
+}
+
+/* ───────────── 10. CONVECTION ───────────── */
+.s-convection { background: var(--bg-dark); justify-content: flex-end; }
+.convection-scene { position: absolute; inset: 0; z-index: 1; }
+.convection-scene svg { width: 100%; height: 100%; }
+
+/* ───────────── 11. GAP ───────────── */
+.s-gap { background: #010306; justify-content: center; align-items: center; }
+.gap-content {
+  display: flex;
+  gap: 7rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4rem;
+}
+.gap-widget {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 22px;
+  padding: 2.5rem 3rem;
+  text-align: center;
+  min-width: 240px;
+  visibility: hidden;
+}
+.widget-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+.widget-temp { font-size: 5.5rem; font-weight: 900; line-height: 1; }
+.widget-unit { font-size: 2rem; vertical-align: super; color: var(--text-muted); }
+.widget-location { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+.widget-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 1.5rem;
+  height: 40px;
+}
+.mini-bar { width: 8px; background: var(--bg-surface); border-radius: 2px; }
+.gap-text { max-width: 500px; }
+.gap-line { font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 1.25rem; visibility: hidden; }
+.gap-question { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-top: 2rem; }
+
+/* ───────────── 12. SOLUTION ───────────── */
+.s-solution {
+  background: var(--bg-dark);
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 5rem;
+  gap: 3rem;
+}
+.solution-content { text-align: center; }
+.solution-title { margin-bottom: 0.75rem; visibility: hidden; }
+.solution-sub { font-size: 1.15rem; visibility: hidden; }
+.solution-preview {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.map-preview {
+  position: relative;
+  width: 480px;
+  height: 240px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: var(--border-glass);
+  flex-shrink: 0;
+}
+#preview-map { width: 100%; height: 100%; }
+.map-overlay-blur {
+  position: absolute;
+  inset: 0;
+  background: rgba(2,6,23,0.55);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+  border-radius: inherit;
+}
+.slider-preview { display: flex; flex-direction: column; gap: 0.85rem; min-width: 300px; }
+.slider-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255,255,255,0.04);
+  border: var(--border-glass);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  visibility: hidden;
+  transform: translateX(50px);
+}
+.fake-slider {
+  position: relative;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+}
+.fake-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--heat-orange), var(--heat-red));
+  border-radius: 2px;
+}
+.fake-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: var(--heat-orange);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(249,115,22,0.6);
+  border: 2px solid rgba(255,255,255,0.4);
+}
+
+/* ───────────── 13. SIMULATION ───────────── */
+.s-simulation {
+  background: var(--bg-dark);
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1.5rem 3rem 2rem;
+  gap: 1.25rem;
+  height: auto;
+  min-height: 100vh;
+  scroll-snap-align: start;
+}
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-top: 0.5rem;
+}
+.sim-title-group { display: flex; align-items: center; gap: 1.25rem; }
+.sim-header h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 700; }
+.sim-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cool-green);
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.25);
+  padding: 0.3rem 0.8rem;
+  border-radius: 100px;
+}
+.city-search { display: flex; gap: 0.75rem; }
+.city-search input {
+  background: rgba(255,255,255,0.05);
+  border: var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.2rem;
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  width: 200px;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.city-search input:focus { border-color: rgba(249,115,22,0.5); }
+.city-search input::placeholder { color: var(--text-muted); }
+.city-search button {
+  padding: 0.7rem 1.25rem;
+  background: linear-gradient(135deg, var(--heat-orange), var(--heat-red));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.city-search button:hover { opacity: 0.88; transform: translateY(-1px); }
+.sim-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: 1.25rem;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.sim-controls { display: flex; flex-direction: column; gap: 1.1rem; }
+.sim-controls h3 { color: var(--text-secondary); margin-bottom: 0.25rem; font-size: 0.8rem; }
+.control-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.control-group label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.control-group label span { color: var(--heat-orange); font-weight: 700; font-size: 0.85rem; }
+
+/* Range input */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--bg-surface);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--heat-orange), var(--heat-red));
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(249,115,22,0.5);
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 18px rgba(249,115,22,0.7);
+}
+.temp-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  margin-top: auto;
+  padding: 1.25rem 1rem;
+  background: rgba(249,115,22,0.06);
+  border: var(--border-heat);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.temp-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 0.3rem; }
+.temp-value {
+  font-size: 2.2rem;
+  font-weight: 900;
+  line-height: 1;
+  transition: color 0.5s;
+  color: var(--cool-cyan);
+}
+.temp-value.hot { color: var(--heat-orange); }
+.temp-arrow { font-size: 1.3rem; color: var(--text-muted); }
+.reduction-badge {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--cool-cyan);
+  font-weight: 600;
+  background: rgba(56,189,248,0.07);
+  border: 1px solid rgba(56,189,248,0.2);
+  border-radius: 100px;
+  padding: 0.4rem 1rem;
+}
+.sim-map-container {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: var(--border-glass);
+  position: relative;
+  min-height: 360px;
+}
+#sim-map { width: 100%; height: 100%; min-height: 360px; }
+.map-legend {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: rgba(2,6,23,0.85);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  border: var(--border-glass);
+  white-space: nowrap;
+  z-index: 400;
+}
+.legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.sim-chart { display: flex; flex-direction: column; gap: 0.75rem; }
+.sim-chart h3 { color: var(--text-secondary); font-size: 0.8rem; }
+#impact-chart { flex: 1; min-height: 200px; }
+.chart-note { font-size: 0.72rem; color: var(--text-muted); text-align: center; font-style: italic; }
+
+/* ───────────── 14. IMPACT ───────────── */
+.s-impact { background: var(--bg-deep); justify-content: center; align-items: center; flex-direction: column; }
+#impact-particles { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.impact-content { position: relative; z-index: 2; text-align: center; max-width: 860px; padding: 0 2rem; }
+.impact-lines { margin-bottom: 4rem; }
+.impact-line {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: clamp(2rem, 4.5vw, 3.8rem);
+  visibility: hidden;
+  transform: translateY(40px);
+}
+.impact-stats {
+  display: flex;
+  gap: 1.75rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+.stat-card {
+  padding: 1.5rem 2.25rem;
+  background: rgba(255,255,255,0.04);
+  border: var(--border-glass);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(12px);
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: border-color 0.3s;
+}
+.stat-card:hover { border-color: rgba(56,189,248,0.35); }
+.stat-number {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--cool-cyan), var(--cool-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+.impact-cta { visibility: hidden; }
+
+/* ───────────── 15. LEAFLET OVERRIDES ───────────── */
+.leaflet-container { background: var(--bg-dark) !important; }
+.leaflet-control-attribution { display: none !important; }
+.leaflet-tile { filter: brightness(0.85) saturate(0.7); }
+.leaflet-control-zoom a {
+  background: rgba(15,23,42,0.9) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.leaflet-control-zoom a:hover { background: rgba(30,41,59,0.95) !important; }
+
+/* ───────────── 16. KEYFRAMES ───────────── */
+@keyframes scrollBounce {
+  0%, 100% { transform: scaleY(1); opacity: 0.5; }
+  50% { transform: scaleY(1.5); opacity: 1; }
+}
+@keyframes gridDrift {
+  0% { background-position: 0 0; }
+  100% { background-position: 64px 64px; }
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(252,211,77,0.6)); }
+  50% { filter: drop-shadow(0 0 50px rgba(252,211,77,1)); }
+}
+
+/* ───────────── 17. RESPONSIVE ───────────── */
+@media (max-width: 1100px) {
+  .s-problem { padding: 0 3rem; }
+  .s-simulation { padding: 1.5rem 2rem; }
+  .sim-layout { grid-template-columns: 260px 1fr 260px; }
+}
+@media (max-width: 900px) {
+  .s-problem { flex-direction: column; padding: 2rem; }
+  .city-scene { max-width: 100%; width: 100%; height: 35vh; }
+  .physics-label { left: 1.5rem; top: 1.5rem; }
+  .physics-text { margin: 0 1.5rem; max-width: 100%; }
+  .sim-layout { grid-template-columns: 1fr; }
+  .gap-content { flex-direction: column; gap: 2.5rem; padding: 0 2rem; }
+  .solution-preview { flex-direction: column; }
+  .map-preview { width: 100%; }
+  .s-solution { padding: 2rem; }
+}
+@media (max-width: 600px) {
+  .sim-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+  .s-simulation { padding: 1.25rem 1.25rem; }
+  .hero-actions { flex-direction: column; align-items: center; }
+  .impact-stats { flex-direction: column; }
+}

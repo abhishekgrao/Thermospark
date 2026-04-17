@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Urban Thermal — Cities Are Heating Up. But It's Not Random.</title>
+  <meta name="description" content="An interactive, cinematic scroll experience explaining urban heat islands through thermodynamics. Explore, simulate, and understand the science of city heat." />
+  <meta name="theme-color" content="#020617" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════ SECTION 1 — HERO ═══════════════════════════════ -->
+  <section id="s1" class="section s-hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="city-grid-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Thermodynamics × Urban Planning</div>
+      <h1 class="hero-title">
+        <span class="line">Cities Are</span>
+        <span class="line heat-text">Heating Up.</span>
+        <span class="line">But It's Not Random.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Understand how thermodynamics shapes urban heat —<br />and how to reduce it.
+      </p>
+      <div class="hero-actions">
+        <a href="#s8" class="btn btn-primary" id="btn-map">Explore Map</a>
+        <a href="#s8" class="btn btn-ghost" id="btn-sim">Run Simulation</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>Scroll to explore</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 2 — PROBLEM ═══════════════════════════════ -->
+  <section id="s2" class="section s-problem">
+    <div class="city-scene" id="city-scene"></div>
+    <div class="problem-text">
+      <div class="section-label">The Problem</div>
+      <h2 class="reveal-h2">Why Are Cities<br />Getting Hotter?</h2>
+      <div class="fact-lines">
+        <p class="fact-line">Urban areas are up to <span class="heat-text">7°C warmer</span> than surrounding countryside.</p>
+        <p class="fact-line">Concrete and asphalt absorb <span class="heat-text">95% of solar radiation.</span></p>
+        <p class="fact-line">Dense building layouts <span class="heat-text">trap heat</span> and block natural airflow.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 3 — RADIATION ═══════════════════════════════ -->
+  <section id="s3" class="section s-radiation">
+    <div class="physics-label" id="label-radiation">
+      <span class="label-icon">☀️</span>
+      <span class="label-text">Radiation</span>
+      <div class="label-underline"></div>
+    </div>
+    <div class="radiation-scene" id="radiation-scene"></div>
+    <div class="physics-text" id="physics-text-3">
+      <p class="physics-desc">"Sunlight is absorbed by surfaces and converted into heat."</p>
+      <div class="formula">Q = εσT⁴</div>
+      <div class="formula-desc">Stefan–Boltzmann Law of radiation</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 4 — CONDUCTION ═══════════════════════════════ -->
+  <section id="s4" class="section s-conduction">
+    <div class="physics-label" id="label-conduction">
+      <span class="label-icon">🧱</span>
+      <span class="label-text">Conduction</span>
+      <div class="label-underline"></div>
+    </div>
+    <canvas id="conduction-canvas"></canvas>
+    <div class="conduction-overlay">
+      <div class="heat-scale">
+        <div class="scale-label">Cool</div>
+        <div class="scale-bar"></div>
+        <div class="scale-label">Hot</div>
+      </div>
+    </div>
+    <div class="physics-text" id="physics-text-4">
+      <p class="physics-desc">"Heat is stored and transferred through solid materials like concrete."</p>
+      <div class="formula">q = −k · ∇T</div>
+      <div class="formula-desc">Fourier's Law of Heat Conduction</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 5 — CONVECTION ═══════════════════════════════ -->
+  <section id="s5" class="section s-convection">
+    <div class="physics-label" id="label-convection">
+      <span class="label-icon">💨</span>
+      <span class="label-text">Convection</span>
+      <div class="label-underline"></div>
+    </div>
+    <div class="convection-scene" id="convection-scene"></div>
+    <div class="physics-text" id="physics-text-5">
+      <p class="physics-desc">"Airflow is restricted, preventing heat from escaping."</p>
+      <div class="formula">Q = h · A · ΔT</div>
+      <div class="formula-desc">Newton's Law of Cooling</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 6 — THE GAP ═══════════════════════════════ -->
+  <section id="s6" class="section s-gap">
+    <div class="gap-content">
+      <div class="gap-widget" id="gap-widget">
+        <div class="widget-label">Current Temperature</div>
+        <div class="widget-temp">38<span class="widget-unit">°C</span></div>
+        <div class="widget-location">📍 Bangalore, India</div>
+        <div class="widget-bars">
+          <div class="mini-bar" style="height:40%"></div>
+          <div class="mini-bar" style="height:60%"></div>
+          <div class="mini-bar" style="height:35%"></div>
+          <div class="mini-bar" style="height:80%"></div>
+          <div class="mini-bar" style="height:55%"></div>
+        </div>
+      </div>
+      <div class="gap-text">
+        <p class="gap-line">Most systems only show temperature.</p>
+        <p class="gap-line">They do not explain <em>why</em> heat builds up.</p>
+        <p class="gap-line">They do not simulate solutions.</p>
+        <p class="gap-line gap-question">What if you could change that?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 7 — SOLUTION INTRO ═══════════════════════════════ -->
+  <section id="s7" class="section s-solution">
+    <div class="solution-content">
+      <h2 class="solution-title">What if you could <span class="heat-text">control</span> this?</h2>
+      <p class="solution-sub">Tune parameters. Watch temperatures shift. Design cooler cities.</p>
+    </div>
+    <div class="solution-preview">
+      <div class="map-preview">
+        <div id="preview-map"></div>
+        <div class="map-overlay-blur"></div>
+      </div>
+      <div class="slider-preview">
+        <div class="slider-item" id="si-1">
+          <span>🌿 Greenery Coverage</span>
+          <div class="fake-slider"><div class="fake-fill" style="width:40%"></div><div class="fake-thumb" style="left:40%"></div></div>
+        </div>
+        <div class="slider-item" id="si-2">
+          <span>🏙️ Building Density</span>
+          <div class="fake-slider"><div class="fake-fill" style="width:65%"></div><div class="fake-thumb" style="left:65%"></div></div>
+        </div>
+        <div class="slider-item" id="si-3">
+          <span>💨 Airflow</span>
+          <div class="fake-slider"><div class="fake-fill" style="width:30%"></div><div class="fake-thumb" style="left:30%"></div></div>
+        </div>
+        <div class="slider-item" id="si-4">
+          <span>✨ Reflectivity</span>
+          <div class="fake-slider"><div class="fake-fill" style="width:55%"></div><div class="fake-thumb" style="left:55%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 8 — SIMULATION ═══════════════════════════════ -->
+  <section id="s8" class="section s-simulation">
+    <div class="sim-header">
+      <div class="sim-title-group">
+        <h2>Urban Heat Simulator</h2>
+        <div class="sim-status" id="sim-status">Ready</div>
+      </div>
+      <div class="city-search">
+        <input type="text" id="city-input" placeholder="Enter city..." autocomplete="off" />
+        <button id="city-search-btn">Fetch Weather</button>
+      </div>
+    </div>
+    <div class="sim-layout">
+
+      <!-- Controls Panel -->
+      <div class="sim-controls glass-panel">
+        <h3>🎛️ Parameters</h3>
+        <div class="control-group">
+          <label>🌿 Greenery <span id="greenery-val">40%</span></label>
+          <input type="range" id="greenery" min="0" max="100" value="40" />
+        </div>
+        <div class="control-group">
+          <label>🏙️ Density <span id="density-val">60%</span></label>
+          <input type="range" id="density" min="0" max="100" value="60" />
+        </div>
+        <div class="control-group">
+          <label>💨 Airflow <span id="airflow-val">30%</span></label>
+          <input type="range" id="airflow" min="0" max="100" value="30" />
+        </div>
+        <div class="control-group">
+          <label>✨ Reflectivity <span id="reflectivity-val">25%</span></label>
+          <input type="range" id="reflectivity" min="0" max="100" value="25" />
+        </div>
+        <div class="temp-display">
+          <div class="temp-block">
+            <div class="temp-label">Baseline</div>
+            <div class="temp-value hot" id="temp-before">43°C</div>
+          </div>
+          <div class="temp-arrow">→</div>
+          <div class="temp-block">
+            <div class="temp-label">Simulated</div>
+            <div class="temp-value" id="temp-after">38°C</div>
+          </div>
+        </div>
+        <div class="reduction-badge" id="reduction-badge">
+          ▼ <span id="reduction-val">5.0</span>°C reduction
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="sim-map-container">
+        <div id="sim-map"></div>
+        <div class="map-legend">
+          <span class="legend-dot" style="background:#38BDF8"></span> Cool
+          <span class="legend-dot" style="background:#22C55E; margin-left:0.5rem"></span> Comfortable
+          <span class="legend-dot" style="background:#FCD34D; margin-left:0.5rem"></span> Warm
+          <span class="legend-dot" style="background:#F97316; margin-left:0.5rem"></span> Hot
+          <span class="legend-dot" style="background:#FB7185; margin-left:0.5rem"></span> Extreme
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="sim-chart glass-panel">
+        <h3>📊 Temperature Impact</h3>
+        <canvas id="impact-chart"></canvas>
+        <div class="chart-note" id="chart-note">Adjust sliders to see changes</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SECTION 9 — IMPACT ═══════════════════════════════ -->
+  <section id="s9" class="section s-impact">
+    <canvas id="impact-particles"></canvas>
+    <div class="impact-content">
+      <div class="impact-lines">
+        <h2 class="impact-line">Make better decisions.</h2>
+        <h2 class="impact-line cool-text">Design cooler cities.</h2>
+        <h2 class="impact-line">Turn science into action.</h2>
+      </div>
+      <div class="impact-stats">
+        <div class="stat-card" id="stat-1">
+          <div class="stat-number">7°C</div>
+          <div class="stat-label">Average UHI Intensity</div>
+        </div>
+        <div class="stat-card" id="stat-2">
+          <div class="stat-number">40%</div>
+          <div class="stat-label">Possible Heat Reduction</div>
+        </div>
+        <div class="stat-card" id="stat-3">
+          <div class="stat-number">1B+</div>
+          <div class="stat-label">People Affected by UHI</div>
+        </div>
+      </div>
+      <a href="#s1" class="btn btn-primary impact-cta" id="impact-cta">↑ Start Exploring</a>
+    </div>
+  </section>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

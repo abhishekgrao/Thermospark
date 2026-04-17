@@ -1,0 +1,9 @@
+{
+  "Bangalore": { "city": "Bangalore", "country": "IN", "temp": 32, "feels_like": 36, "humidity": 65, "wind_speed": 3.2, "lat": 12.9716, "lon": 77.5946 },
+  "Mumbai": { "city": "Mumbai", "country": "IN", "temp": 35, "feels_like": 42, "humidity": 82, "wind_speed": 4.1, "lat": 19.0760, "lon": 72.8777 },
+  "Delhi": { "city": "Delhi", "country": "IN", "temp": 40, "feels_like": 46, "humidity": 30, "wind_speed": 2.5, "lat": 28.7041, "lon": 77.1025 },
+  "London": { "city": "London", "country": "GB", "temp": 16, "feels_like": 15, "humidity": 72, "wind_speed": 5.5, "lat": 51.5074, "lon": -0.1278 },
+  "New York": { "city": "New York", "country": "US", "temp": 26, "feels_like": 29, "humidity": 60, "wind_speed": 4.8, "lat": 40.7128, "lon": -74.0060 },
+  "Tokyo": { "city": "Tokyo", "country": "JP", "temp": 30, "feels_like": 34, "humidity": 70, "wind_speed": 3.5, "lat": 35.6762, "lon": 139.6503 },
+  "Singapore": { "city": "Singapore", "country": "SG", "temp": 33, "feels_like": 40, "humidity": 85, "wind_speed": 2.8, "lat": 1.3521, "lon": 103.8198 }
+}
