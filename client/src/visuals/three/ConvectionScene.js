@@ -12,7 +12,12 @@ export class ConvectionScene extends BaseScene {
   constructor(canvas) {
     super(canvas)
     this._progress = 0
+    this._gap = 0 // 0 = close, 1 = far
     this._buildScene()
+  }
+
+  setGap(val) {
+    this._gap = val
   }
 
   _buildScene() {
@@ -26,31 +31,31 @@ export class ConvectionScene extends BaseScene {
     this.camera.lookAt(0, -10, 0)
 
     // Lights
-    s.add(new THREE.AmbientLight(0x0a1628, 1))
-    const dl = new THREE.DirectionalLight(0x1e293b, 1.5)
+    s.add(new THREE.AmbientLight(0x1a2748, 1))
+    const dl = new THREE.DirectionalLight(0xffffff, 0.6)
     dl.position.set(0, 100, 50)
     s.add(dl)
 
     // ── Buildings (City Canyon) ──
     const bGeo = new THREE.BoxGeometry(60, 200, 40)
     const bMat = new THREE.MeshStandardMaterial({
-      color: 0x0f172a,
+      color: 0x60A5FA, // light blue
       roughness: 0.9,
-      metalness: 0.2
+      metalness: 0.1
     })
     
-    const leftBldg = new THREE.Mesh(bGeo, bMat)
-    leftBldg.position.set(-60, -20, 0)
-    s.add(leftBldg)
+    this.leftBldg = new THREE.Mesh(bGeo, bMat)
+    this.leftBldg.position.set(-60, -20, 0)
+    s.add(this.leftBldg)
     
-    const rightBldg = new THREE.Mesh(bGeo, bMat)
-    rightBldg.position.set(60, -20, 0)
-    s.add(rightBldg)
+    this.rightBldg = new THREE.Mesh(bGeo, bMat)
+    this.rightBldg.position.set(60, -20, 0)
+    s.add(this.rightBldg)
 
     // Adds some simple window textures
     const wireMat = new THREE.MeshBasicMaterial({ color: 0xf97316, wireframe: true, transparent: true, opacity: 0.05 })
-    s.add(new THREE.Mesh(bGeo, wireMat).copy(leftBldg))
-    s.add(new THREE.Mesh(bGeo, wireMat).copy(rightBldg))
+    this.leftBldg.add(new THREE.Mesh(bGeo, wireMat))
+    this.rightBldg.add(new THREE.Mesh(bGeo, wireMat))
 
     // ── Particles: Free Air (Cyan) ──
     const FREE_COUNT = 300
@@ -124,35 +129,52 @@ export class ConvectionScene extends BaseScene {
 
   update(progress) {
     this._progress = progress
-    
-    // Inversion layer drops down and glow intensifies as progress increases
-    const ceilY = THREE.MathUtils.lerp(60, -20, progress)
-    this.inversionPlane.position.y = ceilY
-    
-    this.inversionPlane.material.opacity = smoothstep(progress, 0.1, 0.9) * 0.4
-    this.glowBox.material.opacity = smoothstep(progress, 0.1, 0.9) * 0.12
-    
     // Slow camera rotation for depth
     this.camera.position.x = THREE.MathUtils.lerp(0, 20, progress)
     this.camera.lookAt(0, -10, 0)
   }
 
   onFrame() {
+    const gap = this._gap;
+    
+    // Building animation
+    const bCloseX = 35;
+    const bFarX = 65;
+    const targetX = THREE.MathUtils.lerp(bCloseX, bFarX, gap);
+    this.leftBldg.position.x = -targetX;
+    this.rightBldg.position.x = targetX;
+    
+    // Inversion layer drops down and glow intensifies as progress increases, but gap releases it
+    const ceilY = THREE.MathUtils.lerp(60, -20, this._progress) + (gap * 80); // higher ceiling when gap is large
+    this.inversionPlane.position.y = ceilY
+    
+    const baseOpacity = smoothstep(this._progress, 0.1, 0.9);
+    this.inversionPlane.material.opacity = baseOpacity * 0.4 * (1 - gap);
+    this.glowBox.material.opacity = baseOpacity * 0.12 * (1 - gap);
+    
     // Continuous animation for particles
     
     // Free air rises continuously
+    // When gap is open, blue air moves into the center
     for (let i = 0; i < this.freePos.length / 3; i++) {
-      let y = this.freePos[i*3+1] + 1.2
+      let x = this.freePos[i*3]
+      let y = this.freePos[i*3+1] + 1.2 + (gap * 0.5) // move faster when open
       if (y > this.SCENE_H) {
         y = -this.SCENE_H
+        // re-roll x to be in the gap if gap is wide
+        if (gap > 0.5 && Math.random() > 0.5) {
+          x = (Math.random() - 0.5) * targetX * 1.5;
+        } else {
+          x = (Math.random() * 85) + targetX + 10;
+          if (Math.random() > 0.5) x *= -1;
+        }
       }
+      this.freePos[i*3] = x
       this.freePos[i*3+1] = y
     }
     this.freeGeo.attributes.position.needsUpdate = true
 
     // Trapped air rises, hits ceiling, swirls
-    const ceilY = this.inversionPlane.position.y
-    
     for (let i = 0; i < this.trappedPos.length / 3; i++) {
       let x = this.trappedPos[i*3]
       let y = this.trappedPos[i*3+1]
@@ -162,27 +184,34 @@ export class ConvectionScene extends BaseScene {
       y += vel.dy
       
       // Hit canyon walls
-      if (x < -28 || x > 28) {
+      const wallLimit = targetX - 6;
+      if (x < -wallLimit || x > wallLimit) {
         vel.dx *= -1
-        x = Math.max(-28, Math.min(28, x))
+        x = Math.max(-wallLimit, Math.min(wallLimit, x))
       }
       
       // Hit inversion ceiling
       if (y > ceilY) {
-         // Push down and swirl
-         y = ceilY - Math.random() * 5
-         vel.dy = -0.1 - Math.random() * 0.2 // fall slowly
-         vel.dx += (Math.random() - 0.5) * 0.5 // swirl laterally
+         if (gap > 0.6) {
+             // Escape! Keep rising
+             y = ceilY;
+             vel.dy = 1.0;
+         } else {
+             // Push down and swirl
+             y = ceilY - Math.random() * 5
+             vel.dy = -0.1 - Math.random() * 0.2 // fall slowly
+             vel.dx += (Math.random() - 0.5) * 0.5 // swirl laterally
+         }
       } 
-      // If falling too far down, float back up
-      else if (y < -60) {
+      // If falling too far down, float back up or wrap if gap is open and it flew up
+      else if (y < -60 || (y > this.SCENE_H)) {
          y = -60
          vel.dy = 0.3 + Math.random() * 0.5
       } 
-      // General buoyancy -> tends towards positive dy
+      // General buoyancy -> tends towards positive dy, faster if wide gap
       else {
-         vel.dy += 0.01 
-         if (vel.dy > 1.0) vel.dy = 1.0 // max speed
+         vel.dy += 0.01 + (gap * 0.03) 
+         if (vel.dy > (1.0 + gap)) vel.dy = (1.0 + gap) // max speed
       }
       
       // Mild damping on lateral motion

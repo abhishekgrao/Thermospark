@@ -51,7 +51,7 @@ export class RadiationScene extends BaseScene {
     // ── Lights ──
     s.add(new THREE.AmbientLight(0x1a2748, 0.9))
 
-    const sunDir = new THREE.DirectionalLight(0xfcd34d, 0)
+    const sunDir = new THREE.DirectionalLight(0xffffff, 0)
     sunDir.position.set(140, 160, 80)
     s.add(sunDir)
     this._sunLight = sunDir
@@ -67,7 +67,7 @@ export class RadiationScene extends BaseScene {
 
     // ── Buildings ──
     const bMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
+      color: 0x87ceeb,
       roughness: 0.88,
       metalness: 0.08,
       emissive: new THREE.Color(0, 0, 0),
@@ -119,15 +119,20 @@ export class RadiationScene extends BaseScene {
       rayPoints.push({ from: sunPos.clone(), to: rooftopPos })
     })
 
-    // ── Sun rays (LineSegments, one per building) ──
+    // ── Sun rays (3D Cylinders, one per building) ──
     rayPoints.forEach(({ from, to }) => {
-      const geo = new THREE.BufferGeometry().setFromPoints([from, to])
-      const mat = new THREE.LineBasicMaterial({
-        color: 0xfcd34d, transparent: true, opacity: 0,
-        linewidth: 1,
+      const distance = from.distanceTo(to)
+      const geo = new THREE.CylinderGeometry(1.2, 1.2, distance, 8)
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0xffaa00, transparent: true, opacity: 0,
       })
-      const line = new THREE.Line(geo, mat)
-      this.scene.add(line)
+      const cylinder = new THREE.Mesh(geo, mat)
+      
+      // Position at the midpoint
+      cylinder.position.copy(from).lerp(to, 0.5)
+      cylinder.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), to.clone().sub(from).normalize())
+      
+      this.scene.add(cylinder)
       this._rayMats.push(mat)
     })
 
@@ -192,6 +197,10 @@ export class RadiationScene extends BaseScene {
       if (mesh.material.emissive) {
         mesh.material.emissive.setHSL(0.07, 1.0, heatT * 0.38)
         mesh.material.emissiveIntensity = heatT
+        
+        const coolColor = new THREE.Color(0x60A5FA); // stronger light blue
+        const hotColor = new THREE.Color(0xf25c05);  // orangish red
+        mesh.material.color.lerpColors(coolColor, hotColor, heatT);
       } else if (mesh.material.opacity !== undefined) {
         // roof glow bars
         mesh.material.opacity = heatT * 0.85

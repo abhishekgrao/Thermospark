@@ -73,8 +73,8 @@ export class ConductionScene extends BaseScene {
         
         this.mesh.setMatrixAt(i, dummy.matrix)
         
-        // Initial color (cool slate)
-        this._color.setHex(0x1E293B)
+        // Initial color (blue)
+        this._color.setHex(0x3B82F6)
         this.mesh.setColorAt(i, this._color)
         
         i++
@@ -134,12 +134,10 @@ export class ConductionScene extends BaseScene {
         // Heat is high behind the wave, drops off sharply ahead
         const t = Math.max(0, Math.min(1, 1 - dist / 5))
         
-        // Color lerp: Slate(0.58, 0.3, 0.18) -> Orange(0.07, 1.0, 0.55)
-        this._color.setHSL(
-          THREE.MathUtils.lerp(0.58, 0.07, t),
-          THREE.MathUtils.lerp(0.3, 1.0, t),
-          THREE.MathUtils.lerp(0.18, 0.55, t)
-        )
+        // Color lerp: Blue -> Orangish Red
+        const coolC = new THREE.Color(0x3B82F6)
+        const hotC = new THREE.Color(0xf25c05)
+        this._color.lerpColors(coolC, hotC, t)
         
         this.mesh.setColorAt(i, this._color)
         i++

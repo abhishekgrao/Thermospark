@@ -356,7 +356,7 @@ p  { font-size: clamp(0.95rem, 1.4vw, 1.1rem); color: var(--text-secondary); }
 .convection-scene svg { width: 100%; height: 100%; }
 
 /* ───────────── 11. GAP ───────────── */
-.s-gap { background: #010306; justify-content: center; align-items: center; }
+.s-gap { background: var(--bg-deep); justify-content: center; align-items: center; }
 .gap-content {
   display: flex;
   gap: 7rem;

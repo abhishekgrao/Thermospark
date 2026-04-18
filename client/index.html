@@ -70,6 +70,13 @@
       <div class="label-underline"></div>
     </div>
     <canvas id="radiation-canvas" class="three-canvas"></canvas>
+    <div class="conduction-overlay">
+      <div class="heat-scale">
+        <div class="scale-label">Cool</div>
+        <div class="scale-bar"></div>
+        <div class="scale-label">Hot</div>
+      </div>
+    </div>
     <div class="physics-text" id="physics-text-3">
       <p class="physics-desc">"Sunlight is absorbed by surfaces and converted into heat."</p>
       <div class="formula">Q = εσT⁴</div>
@@ -106,6 +113,10 @@
       <span class="label-text">Convection</span>
       <div class="label-underline"></div>
     </div>
+    <div class="slider-container" style="position: absolute; bottom: 15%; left: 10%; z-index: 10; width: 300px; color: white;">
+      <label for="building-gap-slider">Building Distance: <span id="gap-value">Close</span></label>
+      <input type="range" id="building-gap-slider" min="0" max="1" step="0.01" value="0" style="width: 100%;">
+    </div>
     <canvas id="convection-canvas" class="three-canvas"></canvas>
     <div class="physics-text" id="physics-text-5">
       <p class="physics-desc">"Airflow is restricted, preventing heat from escaping."</p>
@@ -116,6 +127,7 @@
 
   <!-- ═══════════════════════════════ SECTION 6 — THE GAP ═══════════════════════════════ -->
   <section id="s6" class="section s-gap">
+    <div class="bridge-glow"></div>
     <div class="gap-content">
       <div class="gap-widget" id="gap-widget">
         <div class="widget-label">Current Temperature</div>
@@ -180,7 +192,7 @@
           <div class="stat-label">People Affected by UHI</div>
         </div>
       </div>
-      <a href="#s1" class="btn btn-primary impact-cta" id="impact-cta">↑ Start Exploring</a>
+      <a href="/simulator.html" class="btn btn-primary impact-cta" id="impact-cta">↑ Open Simulation</a>
     </div>
   </section>
 
