@@ -72,6 +72,37 @@ export class ConductionScene extends BaseScene {
     basePad.position.set(0, -totalH / 2 - 1.5, 0)
     s.add(basePad)
 
+    // ── Grass layer (matching radiation page) ──
+    const grassGeo = new THREE.BoxGeometry(this.COLS * bW + 8, 2.1, 36)
+    const grassMat = new THREE.MeshStandardMaterial({ color: 0x82c061, roughness: 1.0 })
+    const grassPad = new THREE.Mesh(grassGeo, grassMat)
+    grassPad.position.set(0, -totalH / 2 - 1.5, 0)
+    s.add(grassPad)
+
+    // ── Trees / bushes scattered around the wall (matching radiation page) ──
+    const treeGeo = new THREE.SphereGeometry(3.5, 12, 12)
+    const treeMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 1.0 })
+    const treePositions = [
+      // Front row (in front of wall, z positive)
+      [-totalW * 0.42, 0,  14], [-totalW * 0.25, 0, 16], [0, 0, 16],
+      [ totalW * 0.25, 0,  14], [ totalW * 0.42, 0, 14],
+      // Back row (behind wall, z negative)
+      [-totalW * 0.38, 0, -14], [-totalW * 0.18, 0, -16], [totalW * 0.18, 0, -16],
+      [ totalW * 0.38, 0, -14],
+      // Corners
+      [-totalW * 0.48, 0, 10], [totalW * 0.48, 0, 10],
+      [-totalW * 0.48, 0, -10], [totalW * 0.48, 0, -10],
+    ]
+    treePositions.forEach(([tx, , tz]) => {
+      const tree = new THREE.Mesh(treeGeo, treeMat.clone())
+      // Sit on top of the grass pad
+      tree.position.set(tx, -totalH / 2 + 2, tz)
+      // Randomize size slightly for variety
+      const scale = 0.7 + Math.random() * 0.6
+      tree.scale.setScalar(scale)
+      s.add(tree)
+    })
+
     const dummy = new THREE.Object3D()
     
     let i = 0

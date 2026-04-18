@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -149,6 +150,25 @@
     </div>
   </section>
 
+  <!-- ═══════════════════════════════ SECTION DATA — TEMPERATURE CHART ═══════════════════════════════ -->
+  <section id="s-chart" class="section s-chart-section">
+    <div class="chart-content">
+      <div class="chart-header">
+        <div class="section-label">Real Data</div>
+        <h2 class="chart-title">Urban Heat Island — <span class="heat-text">24-Hour Profile</span></h2>
+        <p class="chart-sub">Cities run consistently hotter than surrounding rural areas throughout the entire day.</p>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="uhi-chart"></canvas>
+      </div>
+      <div class="chart-legend">
+        <span class="legend-item"><span class="legend-dot urban"></span>Urban Temperature</span>
+        <span class="legend-item"><span class="legend-dot rural"></span>Rural Temperature</span>
+        <span class="legend-item legend-gap"><span class="legend-dot gap-dot"></span>Heat Gap (UHI Effect)</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══════════════════════════════ BRIDGE — CTA TO SIMULATOR ═══════════════════════════════ -->
   <section id="s-cta" class="section s-bridge-cta">
     <div class="bridge-glow"></div>
@@ -196,5 +216,112 @@
   </section>
 
   <script type="module" src="/src/main.js"></script>
+
+  <script>
+    // ── UHI Temperature Chart ──
+    (function initUHIChart() {
+      const labels = ['06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00','00:00','02:00','04:00']
+      const urban  = [26,29,33,36,38,37,35,33,31,30,29,28]
+      const rural  = [24,27,31,34,35,34,32,29,27,25,24,24]
+
+      const canvas = document.getElementById('uhi-chart')
+      if (!canvas || typeof Chart === 'undefined') return
+
+      const ctx = canvas.getContext('2d')
+
+      // Gradient fills
+      const urbanGrad = ctx.createLinearGradient(0, 0, 0, 400)
+      urbanGrad.addColorStop(0, 'rgba(249,115,22,0.45)')
+      urbanGrad.addColorStop(1, 'rgba(249,115,22,0.02)')
+
+      const ruralGrad = ctx.createLinearGradient(0, 0, 0, 400)
+      ruralGrad.addColorStop(0, 'rgba(56,189,248,0.35)')
+      ruralGrad.addColorStop(1, 'rgba(56,189,248,0.02)')
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Urban',
+              data: urban,
+              borderColor: '#f97316',
+              borderWidth: 2.5,
+              backgroundColor: urbanGrad,
+              fill: true,
+              tension: 0.42,
+              pointBackgroundColor: '#f97316',
+              pointRadius: 5,
+              pointHoverRadius: 8,
+            },
+            {
+              label: 'Rural',
+              data: rural,
+              borderColor: '#38bdf8',
+              borderWidth: 2.5,
+              backgroundColor: ruralGrad,
+              fill: true,
+              tension: 0.42,
+              pointBackgroundColor: '#38bdf8',
+              pointRadius: 5,
+              pointHoverRadius: 8,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 1400, easing: 'easeInOutQuart' },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(2,6,23,0.92)',
+              borderColor: 'rgba(255,255,255,0.08)',
+              borderWidth: 1,
+              titleColor: '#fff',
+              bodyColor: '#94a3b8',
+              padding: 14,
+              callbacks: {
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}°C`,
+                afterBody: (items) => {
+                  const gap = items[0].parsed.y - items[1].parsed.y
+                  return [`\n  Heat Gap: +${gap}°C`]
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#64748b', font: { family: 'Inter', size: 12 } },
+              border: { color: 'rgba(255,255,255,0.08)' }
+            },
+            y: {
+              min: 22,
+              max: 40,
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: {
+                color: '#64748b',
+                font: { family: 'Inter', size: 12 },
+                callback: v => v + '°C'
+              },
+              border: { color: 'rgba(255,255,255,0.08)' }
+            }
+          }
+        }
+      })
+
+      // Animate in when scrolled into view
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          document.querySelector('.chart-content').classList.add('chart-visible')
+          observer.disconnect()
+        }
+      }, { threshold: 0.2 })
+      observer.observe(document.getElementById('s-chart'))
+    })()
+  </script>
 </body>
 </html>
