@@ -1,190 +1,211 @@
-/* ================================================================
-   SIMULATOR PAGE — Extended Styles
-   ================================================================ */
+/* simulator.css - Mysuru Dashboard Layout */
 
-/* ── Simulator page nav ── */
-.sim-page-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+.dashboard-body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* No scroll on dashboard body */
+  background: var(--bg-deep, #020617);
+  color: var(--text-primary, #F8FAFC);
+}
+
+/* Offset layout for the fixed nav */
+.dashboard-layout {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 2.5rem;
-  background: rgba(2, 6, 23, 0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  height: 100vh;
+  padding-top: 56px; /* Space for .hero-page-nav */
 }
 
-.nav-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-decoration: none;
-  padding: 0.45rem 1.1rem 0.45rem 0.85rem;
-  border-radius: 100px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
-  transition: all 0.25s;
+/* Left Sidebar (30%) */
+.dashboard-sidebar {
+  flex: 0 0 30%;
+  max-width: 450px;
+  min-width: 300px;
+  background: var(--bg-dark, #0F172A);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
-.nav-back-btn:hover {
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-primary);
-  background: rgba(255,255,255,0.09);
-  border-color: rgba(255,255,255,0.2);
-  transform: translateX(-3px);
+  margin-bottom: 0.2rem;
 }
-.nav-back-arrow { font-size: 1rem; }
 
-.nav-brand {
+.sidebar-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #94A3B8);
+}
+
+/* Loading State */
+.loading-state {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  color: var(--text-secondary, #CBD5E1);
+  font-size: 0.9rem;
+}
+.loading-state.hidden {
+  display: none;
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--heat-orange, #F97316);
+  border-radius: 50%;
+  animation: s-spin 1s linear infinite;
+}
+@keyframes s-spin { to { transform: rotate(360deg); } }
+
+/* Default State */
+.default-state {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(255,255,255,0.1);
+}
+.default-state.hidden {
+  display: none;
+}
+
+/* Data State */
+.data-state {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+.data-state.hidden {
+  display: none;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.metric-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.metric-group label, .metric-card label {
+  font-size: 0.75rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
+  font-weight: 600;
 }
-.nav-brand-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--heat-orange);
-  box-shadow: 0 0 8px rgba(249,115,22,0.8);
-  animation: brandPulse 2s ease-in-out infinite;
-}
-
-/* Push sections below fixed nav */
-body {
-  padding-top: 60px;
+.code-font {
+  font-family: monospace;
+  background: rgba(0,0,0,0.3);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: inline-block;
 }
 
-/* s7 needs a bit more space for nav */
-.s-solution {
-  padding-top: 2rem;
+/* Metric Cards Grid */
+.metric-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-/* ── Temperature Impact Infinite Ticker ── */
-.impact-ticker-wrapper {
-  flex: 1;
-  min-height: 180px;
-  overflow: hidden;
-  position: relative;
-  /* fade edges */
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
-}
-
-.impact-ticker {
+.metric-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 1rem;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  /* animation set dynamically in JS */
-  will-change: transform;
+  gap: 0.4rem;
+}
+.metric-card.density-card, .metric-card.greenery-card {
+  grid-column: span 2; /* Full width for main analysis metrics */
 }
 
-.ticker-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  transition: background 0.2s;
+.card-icon {
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
 }
-.ticker-row:hover { background: rgba(255,255,255,0.03); }
 
-.ticker-zone {
-  font-size: 0.78rem;
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.normalize-text {
+  text-transform: capitalize;
+}
+
+.metric-hint {
+  font-size: 0.7rem;
   color: var(--text-muted);
-  min-width: 90px;
-  font-weight: 500;
+  margin-top: 0.2rem;
 }
 
-.ticker-bar-wrap {
+/* Color Status Badges */
+.badge-status-high-red {
+  color: #EF4444; /* red */
+}
+.badge-status-high-orange {
+  color: #F97316; /* orange */
+}
+.badge-status-good-green {
+  color: #22C55E; /* green */
+}
+.badge-status-low-red {
+  color: #EF4444; /* red low greenery */
+}
+.badge-status-normal {
+  color: var(--text-primary);
+}
+
+/* Right Map (70%) */
+.dashboard-map {
   flex: 1;
   position: relative;
-  height: 8px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 4px;
-  overflow: hidden;
 }
-
-.ticker-bar-before {
-  position: absolute;
-  left: 0;
-  top: 0;
+.map-container {
+  width: 100%;
   height: 100%;
-  border-radius: 4px;
-  background: rgba(249,115,22,0.75);
-  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-}
-.ticker-bar-after {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  border-radius: 4px;
-  background: rgba(56,189,248,0.75);
-  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  background: var(--bg-dark);
 }
 
-.ticker-temps {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-  min-width: 52px;
+/* Leaflet Overrides (Ensure dark theme using CSS filter on standard tiles) */
+.leaflet-container { background: #0F172A !important; }
+.map-container:not(.is-satellite) .leaflet-layer {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
-.ticker-temp-before {
-  font-size: 0.68rem;
-  color: var(--heat-orange);
-  font-weight: 700;
-}
-.ticker-temp-after {
-  font-size: 0.68rem;
-  color: var(--cool-cyan);
-  font-weight: 700;
-}
+.leaflet-control-attribution { display: none !important; }
 
-/* Live badge */
-.impact-live-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--cool-green);
-  background: rgba(34,197,94,0.08);
-  border: 1px solid rgba(34,197,94,0.2);
-  border-radius: 100px;
-  padding: 0.3rem 0.9rem;
-  margin-top: 0.25rem;
-  align-self: flex-start;
-}
-.live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--cool-green);
-  animation: livePulse 1.2s ease-in-out infinite;
-}
-
-/* ── Keyframes ── */
-@keyframes brandPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-@keyframes livePulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.5; }
-}
-
-@keyframes tickerScroll {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-50%); }
+/* Responsive */
+@media (max-width: 800px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+  .dashboard-sidebar {
+    flex: none;
+    height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .dashboard-map {
+    height: 60vh;
+  }
 }

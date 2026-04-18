@@ -3,142 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Urban Heat Simulator — ThermoSpark</title>
-  <meta name="description" content="Tune urban planning parameters and watch temperatures shift in real time. Design cooler cities with the ThermoSpark simulator." />
+  <title>Mysuru Location Analysis</title>
+  <meta name="description" content="Map-based urban heat, greenery, and density analysis." />
   <meta name="theme-color" content="#020617" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class="dashboard-body">
 
-  <!-- Back nav -->
-  <nav class="sim-page-nav" id="sim-page-nav">
-    <a href="/" class="nav-back-btn" id="nav-back-btn">
-      <span class="nav-back-arrow">←</span>
-      <span>Back to Explore</span>
-    </a>
-    <div class="nav-brand">
+  <nav class="hero-page-nav" id="simulator-nav">
+    <div class="nav-logo">
       <span class="nav-brand-dot"></span>
-      ThermoSpark — Simulator
+      ThermoSpark
     </div>
+    <a href="/index.html" class="nav-sim-link">
+      ← Back to Explore
+    </a>
   </nav>
 
-  <!-- ═══════════════════════════════ SECTION 7 — SOLUTION INTRO ═══════════════════════════════ -->
-  <section id="s7" class="section s-solution">
-    <div class="solution-content">
-      <h2 class="solution-title">What if you could <span class="heat-text">control</span> this?</h2>
-      <p class="solution-sub">Tune parameters. Watch temperatures shift. Design cooler cities.</p>
-    </div>
-    <div class="solution-preview">
-      <div class="map-preview">
-        <div id="preview-map"></div>
-        <div class="map-overlay-blur"></div>
+  <div class="dashboard-layout">
+    <!-- LEFT: Sidebar (30%) -->
+    <aside class="dashboard-sidebar">
+      <h1 class="sidebar-title">Location Analysis</h1>
+      <p class="sidebar-subtitle">Click anywhere on the map to analyze urban conditions.</p>
+      
+      <div id="loading-state" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p>Analyzing area...</p>
       </div>
-      <div class="slider-preview">
-        <div class="slider-item" id="si-1">
-          <span>🌿 Greenery Coverage</span>
-          <div class="fake-slider"><div class="fake-fill" style="width:40%"></div><div class="fake-thumb" style="left:40%"></div></div>
-        </div>
-        <div class="slider-item" id="si-2">
-          <span>🏙️ Building Density</span>
-          <div class="fake-slider"><div class="fake-fill" style="width:65%"></div><div class="fake-thumb" style="left:65%"></div></div>
-        </div>
-        <div class="slider-item" id="si-3">
-          <span>💨 Airflow</span>
-          <div class="fake-slider"><div class="fake-fill" style="width:30%"></div><div class="fake-thumb" style="left:30%"></div></div>
-        </div>
-        <div class="slider-item" id="si-4">
-          <span>✨ Reflectivity</span>
-          <div class="fake-slider"><div class="fake-fill" style="width:55%"></div><div class="fake-thumb" style="left:55%"></div></div>
-        </div>
-      </div>
-    </div>
-    <div class="scroll-indicator">
-      <span>Scroll down</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
 
-  <!-- ═══════════════════════════════ SECTION 8 — SIMULATION ═══════════════════════════════ -->
-  <section id="s8" class="section s-simulation">
-    <div class="sim-header">
-      <div class="sim-title-group">
-        <h2>Urban Heat Simulator</h2>
-        <div class="sim-status" id="sim-status">Ready</div>
-      </div>
-      <div class="city-search">
-        <input type="text" id="city-input" placeholder="Enter city..." autocomplete="off" />
-        <button id="city-search-btn">Fetch Weather</button>
-      </div>
-    </div>
-    <div class="sim-layout">
+      <div id="analysis-results" class="analysis-results">
+        <!-- Default State -->
+        <div id="default-state" class="default-state">
+          <span>Select a location to view data.</span>
+        </div>
 
-      <!-- Controls Panel -->
-      <div class="sim-controls glass-panel">
-        <h3>🎛️ Parameters</h3>
-        <div class="control-group">
-          <label>🌿 Greenery <span id="greenery-val">40%</span></label>
-          <input type="range" id="greenery" min="0" max="100" value="40" />
-        </div>
-        <div class="control-group">
-          <label>🏙️ Density <span id="density-val">60%</span></label>
-          <input type="range" id="density" min="0" max="100" value="60" />
-        </div>
-        <div class="control-group">
-          <label>💨 Airflow <span id="airflow-val">30%</span></label>
-          <input type="range" id="airflow" min="0" max="100" value="30" />
-        </div>
-        <div class="control-group">
-          <label>✨ Reflectivity <span id="reflectivity-val">25%</span></label>
-          <input type="range" id="reflectivity" min="0" max="100" value="25" />
-        </div>
-        <div class="temp-display">
-          <div class="temp-block">
-            <div class="temp-label">Baseline</div>
-            <div class="temp-value hot" id="temp-before">43°C</div>
+        <!-- Populated Results (Hidden initally) -->
+        <div id="data-state" class="data-state hidden">
+          <div class="metric-group">
+            <label>Location (Lat, Lon)</label>
+            <div id="val-location" class="metric-value code-font">-</div>
           </div>
-          <div class="temp-arrow">→</div>
-          <div class="temp-block">
-            <div class="temp-label">Simulated</div>
-            <div class="temp-value" id="temp-after">38°C</div>
+
+          <div class="metric-cards">
+            <!-- Weather Data -->
+            <div class="metric-card">
+              <div class="card-icon">🌡️</div>
+              <label>Temperature</label>
+              <div id="val-temp" class="metric-value">--°C</div>
+            </div>
+            
+            <div class="metric-card">
+              <div class="card-icon">⛅</div>
+              <label>Weather</label>
+              <div id="val-weather" class="metric-value normalize-text">--</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="card-icon">💨</div>
+              <label>Wind Speed</label>
+              <div id="val-wind" class="metric-value">-- m/s</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="card-icon">🌧️</div>
+              <label>Rain</label>
+              <div id="val-rain" class="metric-value">--</div>
+            </div>
+            
+            <!-- Real World API Data -->
+            <div class="metric-card density-card">
+              <div class="card-icon">🏙️</div>
+              <label>Building Density</label>
+              <div id="val-density" class="metric-value badge-metric">--</div>
+              <div id="hint-density" class="metric-hint">Based on 300m radius</div>
+            </div>
+
+            <div class="metric-card greenery-card">
+              <div class="card-icon">🌿</div>
+              <label>Greenery Cover</label>
+              <div id="val-greenery" class="metric-value badge-metric">--</div>
+              <div id="hint-greenery" class="metric-hint">Based on 300m radius</div>
+            </div>
           </div>
         </div>
-        <div class="reduction-badge" id="reduction-badge">
-          ▼ <span id="reduction-val">5.0</span>°C reduction
-        </div>
       </div>
+      
+    </aside>
 
-      <!-- Map -->
-      <div class="sim-map-container">
-        <div id="sim-map"></div>
-        <div class="map-legend">
-          <span class="legend-dot" style="background:#38BDF8"></span> Cool
-          <span class="legend-dot" style="background:#22C55E; margin-left:0.5rem"></span> Comfortable
-          <span class="legend-dot" style="background:#FCD34D; margin-left:0.5rem"></span> Warm
-          <span class="legend-dot" style="background:#F97316; margin-left:0.5rem"></span> Hot
-          <span class="legend-dot" style="background:#FB7185; margin-left:0.5rem"></span> Extreme
-        </div>
-      </div>
-
-      <!-- Temperature Impact — Infinite Scroll Ticker -->
-      <div class="sim-chart glass-panel">
-        <h3>📊 Temperature Impact</h3>
-        <div class="impact-ticker-wrapper">
-          <div class="impact-ticker" id="impact-ticker">
-            <!-- Filled dynamically -->
-          </div>
-        </div>
-        <div class="chart-note" id="chart-note">Adjust sliders to see changes</div>
-        <!-- Live delta badge -->
-        <div class="impact-live-badge" id="impact-live-badge">
-          <span class="live-dot"></span>
-          Live: <span id="live-delta">—</span>
-        </div>
-      </div>
-
-    </div>
-  </section>
+    <!-- RIGHT: Map (70%) -->
+    <main class="dashboard-map">
+      <div id="sim-map" class="map-container"></div>
+    </main>
+  </div>
 
   <script type="module" src="/src/simulator-main.js"></script>
 </body>
