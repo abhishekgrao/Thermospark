@@ -568,6 +568,13 @@ function getStrategyPool() {
     { title: "Keep shaded water storage", desc: "Micro cooling", type: "Water", icon: "💧", minRed: 0.2, maxRed: 0.2, cost: "₹200–800", tags: ['low-cost'], condition: (t, d, g) => true },
     { title: "Use earthen water channels", desc: "Traditional", type: "Water", icon: "💧", minRed: 0.3, maxRed: 0.3, cost: "₹500–2000", tags: ['low-cost', 'traditional'], condition: (t, d, g) => true },
     { title: "Damp curtains", desc: "Cooling breeze", type: "Water", icon: "💧", minRed: 0.3, maxRed: 0.3, cost: "₹200–800", tags: ['low-cost', 'quick-impact'], link: "https://www.amazon.in/s?k=jute+curtain", condition: (t, d, g) => true },
+
+    // --- SIMPLE COOLING METHODS (NO AC REQUIRED) ---
+    { title: "Wet Curtain Cooling", desc: "Evaporative cotton/khus cooling", type: "Simple", icon: "🧊", minRed: 2.0, maxRed: 5.0, cost: "₹300–800", tags: ['low-cost', 'quick-impact'], link: "https://www.amazon.in/s?k=khus+curtain", condition: (t, d, g) => true },
+    { title: "Floor Sleeping Method", desc: "Heat rises, stay low", type: "Simple", icon: "🧊", minRed: 1.0, maxRed: 3.0, cost: "₹0–500", tags: ['low-cost'], link: "https://www.amazon.in/s?k=chatai+mat", condition: (t, d, g) => true },
+    { title: "Ice + Fan Cooling Trick", desc: "DIY localized AC effect", type: "Simple", icon: "🧊", minRed: 1.0, maxRed: 2.0, cost: "₹200–500", tags: ['low-cost', 'quick-impact'], link: "https://www.amazon.in/s?k=ice+pack", condition: (t, d, g) => true },
+    { title: "Cross Ventilation Setup", desc: "Convection cooling breeze", type: "Simple", icon: "🧊", minRed: 2.0, maxRed: 4.0, cost: "₹0", tags: ['low-cost', 'quick-impact'], link: "https://www.amazon.in/s?k=exhaust+fan", condition: (t, d, g) => true },
+    { title: "Switch Off Heat Sources", desc: "Reduce internal thermal load", type: "Simple", icon: "🧊", minRed: 1.0, maxRed: 3.0, cost: "₹0", tags: ['low-cost', 'quick-impact'], link: "https://www.amazon.in/s?k=led+bulb+low+heat", condition: (t, d, g) => true },
   ]
 }
 
@@ -638,7 +645,8 @@ function renderCoolingStrategies(strategies, filterType = 'all') {
     "🌳 Micro-Level Green Cooling": strategies.filter(s => s.type === "Greenery" || s.type === "Trees"),
     "🏠 Passive Architecture": strategies.filter(s => s.type === "Architecture" || s.type === "Materials"),
     "🌬 Advanced Airflow Ideas": strategies.filter(s => s.type === "Airflow"),
-    "💧 Evaporative Cooling": strategies.filter(s => s.type === "Water")
+    "💧 Evaporative Cooling": strategies.filter(s => s.type === "Water"),
+    "🧊 Simple Methods (No AC)": strategies.filter(s => s.type === "Simple")
   }
 
   let idx = 0;
@@ -709,13 +717,13 @@ function resetCoolingSection() {
   const checkboxes = document.querySelectorAll('.cooling-card input[type="checkbox"]')
   checkboxes.forEach(cb => cb.checked = false)
   
-  const tempEl = document.getElementById('modal-res-current')
+  const tempEl = document.getElementById('res-current-temp')
   if(tempEl) tempEl.textContent = `${currentBaseTemp.toFixed(1)}°C`
   
-  const optEl = document.getElementById('modal-res-opt')
+  const optEl = document.getElementById('res-opt-temp')
   if(optEl) optEl.textContent = `${currentBaseTemp.toFixed(1)}°C`
   
-  const redEl = document.getElementById('modal-res-reduction')
+  const redEl = document.getElementById('res-total-red')
   if(redEl) redEl.textContent = `0.0°C`
 }
 
@@ -775,8 +783,8 @@ function calculateCooling() {
   const optTemp = currentBaseTemp - totalReduction
   
   // Animate numbers
-  animateNumber('modal-res-opt', optTemp)
-  animateNumber('modal-res-reduction', totalReduction, true)
+  animateNumber('res-opt-temp', optTemp)
+  animateNumber('res-total-red', totalReduction, true)
 }
 
 function animateNumber(elementId, targetValue, isReduction = false) {

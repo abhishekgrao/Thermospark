@@ -16,6 +16,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Urban Thermal API running 🌡️' })
 })
 
-app.listen(PORT, () => {
-  console.log(`\n🌡️  Urban Thermal API → http://localhost:${PORT}\n`)
-})
+// app.listen(PORT, () => {
+//   console.log(`\n🌡️  Urban Thermal API → http://localhost:${PORT}\n`)
+// })
+
+module.exports = app;
