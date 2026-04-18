@@ -24,20 +24,26 @@ export class ConductionScene extends BaseScene {
   _buildScene() {
     const s = this.scene
 
-    // Setup camera for a mostly flat isometric/orthographic feel
-    this.camera.position.set(0, 0, 180)
+    // Premium Isometric Camera setup
+    this.camera.position.set(120, 70, 140)
+    this.camera.lookAt(0, 0, 0)
     
-    // Lights
-    s.add(new THREE.AmbientLight(0xffffff, 0.4))
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8)
-    dirLight.position.set(100, 100, 50)
+    // Soft studio lighting
+    s.add(new THREE.AmbientLight(0xffffff, 0.8)) // Brighter ambient
+    
+    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.1)
+    dirLight.position.set(50, 120, 80)
     s.add(dirLight)
+    
+    const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.5)
+    fillLight.position.set(-60, 40, -60)
+    s.add(fillLight)
 
     // Brick Grid using InstancedMesh
-    const bW = 6
-    const bH = 3.5
-    const bD = 8
-    const gap = 0.4
+    const bW = 8
+    const bH = 3.0
+    const bD = 5
+    const gap = 0.5
 
     const totalW = this.COLS * bW
     const totalH = this.ROWS * bH
@@ -57,6 +63,46 @@ export class ConductionScene extends BaseScene {
       new Float32Array(this.COLS * this.ROWS * 3), 3
     )
 
+    // Premium white float pad
+    const padGeo = new THREE.BoxGeometry(this.COLS * bW + 20, 2, 40)
+    const padMat = new THREE.MeshStandardMaterial({ 
+      color: 0xf8fafc, roughness: 0.7, metalness: 0.05 
+    })
+    const basePad = new THREE.Mesh(padGeo, padMat)
+    basePad.position.set(0, -totalH / 2 - 1.5, 0)
+    s.add(basePad)
+
+    // ── Grass layer (matching radiation page) ──
+    const grassGeo = new THREE.BoxGeometry(this.COLS * bW + 8, 2.1, 36)
+    const grassMat = new THREE.MeshStandardMaterial({ color: 0x82c061, roughness: 1.0 })
+    const grassPad = new THREE.Mesh(grassGeo, grassMat)
+    grassPad.position.set(0, -totalH / 2 - 1.5, 0)
+    s.add(grassPad)
+
+    // ── Trees / bushes scattered around the wall (matching radiation page) ──
+    const treeGeo = new THREE.SphereGeometry(3.5, 12, 12)
+    const treeMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 1.0 })
+    const treePositions = [
+      // Front row (in front of wall, z positive)
+      [-totalW * 0.42, 0,  14], [-totalW * 0.25, 0, 16], [0, 0, 16],
+      [ totalW * 0.25, 0,  14], [ totalW * 0.42, 0, 14],
+      // Back row (behind wall, z negative)
+      [-totalW * 0.38, 0, -14], [-totalW * 0.18, 0, -16], [totalW * 0.18, 0, -16],
+      [ totalW * 0.38, 0, -14],
+      // Corners
+      [-totalW * 0.48, 0, 10], [totalW * 0.48, 0, 10],
+      [-totalW * 0.48, 0, -10], [totalW * 0.48, 0, -10],
+    ]
+    treePositions.forEach(([tx, , tz]) => {
+      const tree = new THREE.Mesh(treeGeo, treeMat.clone())
+      // Sit on top of the grass pad
+      tree.position.set(tx, -totalH / 2 + 2, tz)
+      // Randomize size slightly for variety
+      const scale = 0.7 + Math.random() * 0.6
+      tree.scale.setScalar(scale)
+      s.add(tree)
+    })
+
     const dummy = new THREE.Object3D()
     
     let i = 0
@@ -73,8 +119,8 @@ export class ConductionScene extends BaseScene {
         
         this.mesh.setMatrixAt(i, dummy.matrix)
         
-        // Initial color (cool slate)
-        this._color.setHex(0x1E293B)
+        // Initial color (blue)
+        this._color.setHex(0x3B82F6)
         this.mesh.setColorAt(i, this._color)
         
         i++
@@ -134,12 +180,10 @@ export class ConductionScene extends BaseScene {
         // Heat is high behind the wave, drops off sharply ahead
         const t = Math.max(0, Math.min(1, 1 - dist / 5))
         
-        // Color lerp: Slate(0.58, 0.3, 0.18) -> Orange(0.07, 1.0, 0.55)
-        this._color.setHSL(
-          THREE.MathUtils.lerp(0.58, 0.07, t),
-          THREE.MathUtils.lerp(0.3, 1.0, t),
-          THREE.MathUtils.lerp(0.18, 0.55, t)
-        )
+        // Color lerp: Blue -> Orangish Red
+        const coolC = new THREE.Color(0x3B82F6)
+        const hotC = new THREE.Color(0xf25c05)
+        this._color.lerpColors(coolC, hotC, t)
         
         this.mesh.setColorAt(i, this._color)
         i++
@@ -159,7 +203,7 @@ export class ConductionScene extends BaseScene {
     this.glowPlane.material.uniforms.opacity.value = isActivelyCrossing ? 0.7 : 0.0
     
     // Slight camera pan to follow the wave and give life
-    this.camera.position.x = THREE.MathUtils.lerp(-10, 10, progress)
-    this.camera.lookAt(this.camera.position.x, 0, 0)
+    this.camera.position.x = THREE.MathUtils.lerp(100, 140, progress)
+    this.camera.lookAt(THREE.MathUtils.lerp(-10, 10, progress), 0, 0)
   }
 }
