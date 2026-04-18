@@ -24,20 +24,26 @@ export class ConductionScene extends BaseScene {
   _buildScene() {
     const s = this.scene
 
-    // Setup camera for a mostly flat isometric/orthographic feel
-    this.camera.position.set(0, 0, 180)
+    // Premium Isometric Camera setup
+    this.camera.position.set(120, 70, 140)
+    this.camera.lookAt(0, 0, 0)
     
-    // Lights
-    s.add(new THREE.AmbientLight(0xffffff, 0.4))
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8)
-    dirLight.position.set(100, 100, 50)
+    // Soft studio lighting
+    s.add(new THREE.AmbientLight(0xffffff, 0.8)) // Brighter ambient
+    
+    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.1)
+    dirLight.position.set(50, 120, 80)
     s.add(dirLight)
+    
+    const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.5)
+    fillLight.position.set(-60, 40, -60)
+    s.add(fillLight)
 
     // Brick Grid using InstancedMesh
-    const bW = 6
-    const bH = 3.5
-    const bD = 8
-    const gap = 0.4
+    const bW = 8
+    const bH = 3.0
+    const bD = 5
+    const gap = 0.5
 
     const totalW = this.COLS * bW
     const totalH = this.ROWS * bH
@@ -56,6 +62,15 @@ export class ConductionScene extends BaseScene {
     this.mesh.instanceColor = new THREE.InstancedBufferAttribute(
       new Float32Array(this.COLS * this.ROWS * 3), 3
     )
+
+    // Premium white float pad
+    const padGeo = new THREE.BoxGeometry(this.COLS * bW + 20, 2, 40)
+    const padMat = new THREE.MeshStandardMaterial({ 
+      color: 0xf8fafc, roughness: 0.7, metalness: 0.05 
+    })
+    const basePad = new THREE.Mesh(padGeo, padMat)
+    basePad.position.set(0, -totalH / 2 - 1.5, 0)
+    s.add(basePad)
 
     const dummy = new THREE.Object3D()
     
@@ -157,7 +172,7 @@ export class ConductionScene extends BaseScene {
     this.glowPlane.material.uniforms.opacity.value = isActivelyCrossing ? 0.7 : 0.0
     
     // Slight camera pan to follow the wave and give life
-    this.camera.position.x = THREE.MathUtils.lerp(-10, 10, progress)
-    this.camera.lookAt(this.camera.position.x, 0, 0)
+    this.camera.position.x = THREE.MathUtils.lerp(100, 140, progress)
+    this.camera.lookAt(THREE.MathUtils.lerp(-10, 10, progress), 0, 0)
   }
 }

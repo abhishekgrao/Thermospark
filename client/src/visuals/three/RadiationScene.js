@@ -25,11 +25,11 @@ const SCENE_W  = 320   // world-space width
 const SCENE_H  = 180   // world-space height
 const BLDG_D   = 28    // building depth
 
-// Camera positions
-const CAM_START = new THREE.Vector3(0,  55, 280)
-const CAM_END   = new THREE.Vector3(-10, 30,  70)
-const CAM_TARGET_START = new THREE.Vector3(0, 20, 0)
-const CAM_TARGET_END   = new THREE.Vector3(-10, 60, 0)
+// Camera positions for Isometric Premium feel
+const CAM_START = new THREE.Vector3(200, 120, 260)
+const CAM_END   = new THREE.Vector3(140,  90, 180)
+const CAM_TARGET_START = new THREE.Vector3(0, 0, 0)
+const CAM_TARGET_END   = new THREE.Vector3(0, 0, 0)
 
 export class RadiationScene extends BaseScene {
   constructor(canvas) {
@@ -56,68 +56,112 @@ export class RadiationScene extends BaseScene {
     s.add(sunDir)
     this._sunLight = sunDir
 
-    // ── Ground plane ──
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(SCENE_W * 2, SCENE_W * 2),
-      new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 1 })
-    )
-    ground.rotation.x = -Math.PI / 2
-    ground.position.y = 0
-    s.add(ground)
+    // Fill light for soft shadows
+    const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.5)
+    fillLight.position.set(-100, 80, -100)
+    s.add(fillLight)
 
-    // ── Buildings ──
-    const bMat = new THREE.MeshStandardMaterial({
-      color: 0x87ceeb,
-      roughness: 0.88,
-      metalness: 0.08,
+    // ── Premium White Float Pad ──
+    const padGeo = new THREE.BoxGeometry(260, 4, 180)
+    const padMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.7 })
+    const basePad = new THREE.Mesh(padGeo, padMat)
+    basePad.position.set(0, -4, 0)
+    s.add(basePad)
+
+    // ── Grass layer ──
+    const grassGeo = new THREE.BoxGeometry(245, 4.2, 165)
+    const grassMat = new THREE.MeshStandardMaterial({ color: 0x82c061, roughness: 1.0 })
+    const grassPad = new THREE.Mesh(grassGeo, grassMat)
+    grassPad.position.set(0, -4, 0)
+    s.add(grassPad)
+
+    // ── Buildings (Suburban Houses with Solar roofs) ──
+    const houseColors = [0xffffff, 0xfdfbf7, 0xf5eedc, 0xfaf8f5, 0xeeddcc];
+    
+    
+    const roofMat = new THREE.MeshStandardMaterial({
+      color: 0x4f5b8c, // Solar blue roofs
+      roughness: 0.2,
+      metalness: 0.7,
       emissive: new THREE.Color(0, 0, 0),
       emissiveIntensity: 0,
     })
+    roofMat.userData.originalColor = roofMat.color.clone();
 
     const sunPos = new THREE.Vector3(140, 160, 20)
     const rayPoints = []
 
     BUILDINGS.forEach((b, i) => {
-      const bx  = (b.xN - 0.5) * SCENE_W
+      const bx  = (b.xN - 0.5) * SCENE_W * 0.8
       const bw  = b.wN * SCENE_W
-      const bh  = b.hN * SCENE_H
-      const roofY = bh
+      const bh  = Math.max(12, b.hN * SCENE_H * 0.3)
+      const bD2 = Math.min(25, bw)
+      const bZ  = (Math.random() - 0.5) * 80
+      const roofY = bh - 2
 
-      // Main body
-      const geo  = new THREE.BoxGeometry(bw, bh, BLDG_D)
-      const mat  = bMat.clone()
-      const mesh = new THREE.Mesh(geo, mat)
-      mesh.position.set(bx + bw / 2, bh / 2, 0)
+      // Main house body
+      const bColor = houseColors[Math.floor(Math.random() * houseColors.length)];
+      const houseMat = new THREE.MeshStandardMaterial({
+        color: bColor,
+        roughness: 0.9,
+        emissive: new THREE.Color(0, 0, 0),
+        emissiveIntensity: 0,
+      });
+      houseMat.userData.originalColor = houseMat.color.clone();
+      
+      const geo  = new THREE.BoxGeometry(bw, bh, bD2)
+      const mesh = new THREE.Mesh(geo, houseMat)
+      mesh.position.set(bx + bw / 2, bh / 2 - 2, bZ)
       s.add(mesh)
       this._buildings.push(mesh)
 
-      // Window rows (small emissive planes)
-      const winMat = new THREE.MeshBasicMaterial({
-        color: 0xfcd34d, transparent: true, opacity: 0.28,
-      })
-      const floors = Math.floor(bh / 10)
-      for (let f = 0; f < floors; f++) {
-        const win = new THREE.Mesh(
-          new THREE.PlaneGeometry(bw * 0.65, 3.5),
-          winMat.clone()
-        )
-        win.position.set(bx + bw / 2, 6 + f * 10, BLDG_D / 2 + 0.2)
-        s.add(win)
+      // Add simple door
+      const doorGeo = new THREE.BoxGeometry(5, 8, 1);
+      const doorMat = new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 1.0 });
+      const door = new THREE.Mesh(doorGeo, doorMat);
+      door.position.set(0, -bh/2 + 4, bD2/2);
+      mesh.add(door);
+
+      // Add simple windows
+      const winGeo = new THREE.BoxGeometry(4, 4, 1);
+      const winMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.2, metalness: 0.8 });
+      const winL = new THREE.Mesh(winGeo, winMat);
+      winL.position.set(-bw/4, 2, bD2/2);
+      mesh.add(winL);
+      const winR = new THREE.Mesh(winGeo, winMat);
+      winR.position.set(bw/4, 2, bD2/2);
+      mesh.add(winR);
+      
+      // Setup dynamic camera zoom targeting the tallest building
+      if (i === 3) {
+         // Camera zooms 0.5 units away from the front face!
+         this._CAM_END = new THREE.Vector3(bx + bw/2, bh/2 - 2, bZ + bD2/2 + 2); 
+         this._CAM_TARGET_END = new THREE.Vector3(bx + bw/2, bh/2 - 2, bZ);
       }
 
-      // Roof glow bar
-      const roofGlow = new THREE.Mesh(
-        new THREE.BoxGeometry(bw, 1.5, BLDG_D + 2),
-        new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0 })
-      )
-      roofGlow.position.set(bx + bw / 2, roofY + 0.75, 0)
-      s.add(roofGlow)
-      this._buildings.push(roofGlow)   // also heated
+      // Solar roof
+      const roofGeo = new THREE.BoxGeometry(bw + 2, 2.5, bD2 + 2)
+      const rMat = roofMat.clone()
+      rMat.userData.originalColor = roofMat.color.clone()
+      
+      const roof = new THREE.Mesh(roofGeo, rMat)
+      roof.position.set(bx + bw / 2, roofY, bZ)
+      s.add(roof)
+      this._buildings.push(roof)
 
       // Ray: sun → rooftop centre
-      const rooftopPos = new THREE.Vector3(bx + bw / 2, roofY, 5)
+      const rooftopPos = new THREE.Vector3(bx + bw / 2, roofY, bZ)
       rayPoints.push({ from: sunPos.clone(), to: rooftopPos })
     })
+
+    // Random trees scattered on grass
+    const treeGeo = new THREE.SphereGeometry(4, 12, 12)
+    const treeMat = new THREE.MeshStandardMaterial({ color: 0x4caf50, roughness: 1 })
+    for (let t = 0; t < 25; t++) {
+        const tree = new THREE.Mesh(treeGeo, treeMat)
+        tree.position.set((Math.random() - 0.5) * 220, 2, (Math.random() - 0.5) * 140)
+        s.add(tree)
+    }
 
     // ── Sun rays (3D Cylinders, one per building) ──
     rayPoints.forEach(({ from, to }) => {
@@ -179,9 +223,13 @@ export class RadiationScene extends BaseScene {
     this._progress = progress
 
     // ── Camera dolly ──
-    const camT = smoothstep(progress, 0.35, 0.95)
-    this.camera.position.lerpVectors(CAM_START, CAM_END, camT)
-    const target = new THREE.Vector3().lerpVectors(CAM_TARGET_START, CAM_TARGET_END, camT)
+    // Zoom straight into the wall by the end to transition to ConductionScene
+    const camT = smoothstep(progress, 0.35, 1.0)
+    const endPos = this._CAM_END || CAM_END
+    const endTarget = this._CAM_TARGET_END || CAM_TARGET_END
+    
+    this.camera.position.lerpVectors(CAM_START, endPos, camT)
+    const target = new THREE.Vector3().lerpVectors(CAM_TARGET_START, endTarget, camT)
     this.camera.lookAt(target)
 
     // ── Sun rays fade in ──
@@ -197,10 +245,9 @@ export class RadiationScene extends BaseScene {
       if (mesh.material.emissive) {
         mesh.material.emissive.setHSL(0.07, 1.0, heatT * 0.38)
         mesh.material.emissiveIntensity = heatT
-        
-        const coolColor = new THREE.Color(0x60A5FA); // stronger light blue
-        const hotColor = new THREE.Color(0xf25c05);  // orangish red
-        mesh.material.color.lerpColors(coolColor, hotColor, heatT);
+        const orig = mesh.material.userData.originalColor;
+        const hotColor = new THREE.Color(0xf25c05);
+        mesh.material.color.lerpColors(orig, hotColor, heatT * 0.85);
       } else if (mesh.material.opacity !== undefined) {
         // roof glow bars
         mesh.material.opacity = heatT * 0.85

@@ -25,23 +25,36 @@ export class ConvectionScene extends BaseScene {
 
     this.SCENE_H = 120
     
-    // Positioning
-    this.camera.position.set(0, 10, 180)
-    // slight angle down
+    // Premium Isometric Camera setup
+    this.camera.position.set(140, 90, 180)
     this.camera.lookAt(0, -10, 0)
 
-    // Lights
-    s.add(new THREE.AmbientLight(0x1a2748, 1))
-    const dl = new THREE.DirectionalLight(0xffffff, 0.6)
-    dl.position.set(0, 100, 50)
-    s.add(dl)
+    // Soft studio lighting
+    s.add(new THREE.AmbientLight(0xffffff, 0.8)) // Brighter ambient
+    
+    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.1)
+    dirLight.position.set(50, 120, 80)
+    s.add(dirLight)
+    
+    const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.5)
+    fillLight.position.set(-60, 40, -60)
+    s.add(fillLight)
+
+    // Premium white float pad
+    const padGeo = new THREE.BoxGeometry(240, 4, 120)
+    const padMat = new THREE.MeshStandardMaterial({ 
+      color: 0xf8fafc, roughness: 0.7, metalness: 0.05 
+    })
+    const basePad = new THREE.Mesh(padGeo, padMat)
+    basePad.position.set(0, -122, 0)
+    s.add(basePad)
 
     // ── Buildings (City Canyon) ──
-    const bGeo = new THREE.BoxGeometry(60, 200, 40)
+    const bGeo = new THREE.BoxGeometry(55, 200, 50)
     const bMat = new THREE.MeshStandardMaterial({
-      color: 0x60A5FA, // light blue
-      roughness: 0.9,
-      metalness: 0.1
+      color: 0x3b5068, // Sleek slate blue
+      roughness: 0.3,
+      metalness: 0.2
     })
     
     this.leftBldg = new THREE.Mesh(bGeo, bMat)
@@ -52,8 +65,8 @@ export class ConvectionScene extends BaseScene {
     this.rightBldg.position.set(60, -20, 0)
     s.add(this.rightBldg)
 
-    // Adds some simple window textures
-    const wireMat = new THREE.MeshBasicMaterial({ color: 0xf97316, wireframe: true, transparent: true, opacity: 0.05 })
+    // Adds sleek horizontal window stripes look
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0xcfd8dc, wireframe: true, transparent: true, opacity: 0.2 })
     this.leftBldg.add(new THREE.Mesh(bGeo, wireMat))
     this.rightBldg.add(new THREE.Mesh(bGeo, wireMat))
 
@@ -129,8 +142,9 @@ export class ConvectionScene extends BaseScene {
 
   update(progress) {
     this._progress = progress
-    // Slow camera rotation for depth
-    this.camera.position.x = THREE.MathUtils.lerp(0, 20, progress)
+    // Slow camera pan for depth and parallax
+    this.camera.position.x = THREE.MathUtils.lerp(120, 160, progress)
+    this.camera.position.y = THREE.MathUtils.lerp(80, 100, progress)
     this.camera.lookAt(0, -10, 0)
   }
 
