@@ -617,10 +617,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   z-index: 400;
 }
 .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-.sim-chart { display: flex; flex-direction: column; gap: 0.75rem; }
-.sim-chart h3 { color: var(--text-secondary); font-size: 0.8rem; }
+.sim-chart { display: flex; flex-direction: column; gap: 0.75rem; overflow: hidden; }
+.sim-chart h3 { color: var(--text-secondary); font-size: 0.8rem; flex-shrink: 0; }
 #impact-chart { flex: 1; min-height: 200px; }
-.chart-note { font-size: 0.72rem; color: var(--text-muted); text-align: center; font-style: italic; }
+.chart-note { font-size: 0.72rem; color: var(--text-muted); text-align: center; font-style: italic; flex-shrink: 0; }
 
 /* ───────────── 14. IMPACT ───────────── */
 .s-impact { background: var(--bg-deep); justify-content: center; align-items: center; flex-direction: column; }
@@ -663,7 +663,155 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
 .impact-cta { visibility: hidden; }
 
-/* ───────────── 15. LEAFLET OVERRIDES ───────────── */
+/* ───────────── 15. HERO PAGE NAV ───────────── */
+.hero-page-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 2.5rem;
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.3s;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+.nav-brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--heat-orange);
+  box-shadow: 0 0 10px rgba(249,115,22,0.8);
+  animation: navDotPulse 2s ease-in-out infinite;
+}
+.nav-sim-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--heat-orange);
+  text-decoration: none;
+  padding: 0.42rem 1.1rem;
+  border-radius: 100px;
+  border: 1px solid rgba(249,115,22,0.35);
+  background: rgba(249,115,22,0.08);
+  transition: all 0.25s;
+  letter-spacing: 0.02em;
+}
+.nav-sim-link:hover {
+  background: rgba(249,115,22,0.18);
+  border-color: rgba(249,115,22,0.6);
+  box-shadow: 0 0 20px rgba(249,115,22,0.25);
+}
+
+/* Offset first section so nav doesn't cover it */
+body:has(.hero-page-nav) .s-hero,
+body:has(.hero-page-nav) .section:first-of-type {
+  scroll-margin-top: 56px;
+}
+
+/* ───────────── 16. BRIDGE CTA ───────────── */
+.s-bridge-cta {
+  background: var(--bg-deep);
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bridge-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(249,115,22,0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bridge-content {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.bridge-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--heat-orange);
+  background: rgba(249,115,22,0.1);
+  border: 1px solid rgba(249,115,22,0.25);
+  padding: 0.42rem 1.2rem;
+  border-radius: 100px;
+  visibility: hidden;
+}
+
+.bridge-title {
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  visibility: hidden;
+}
+
+.bridge-sub {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 520px;
+  visibility: hidden;
+}
+
+.bridge-cta-btn {
+  font-size: 1.05rem;
+  padding: 1rem 2.8rem;
+  visibility: hidden;
+}
+
+.bridge-preview-pills {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pill {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px;
+  padding: 0.35rem 0.9rem;
+  visibility: hidden;
+  transition: all 0.25s;
+}
+.pill:hover {
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* ───────────── 17. LEAFLET OVERRIDES ───────────── */
 .leaflet-container { background: var(--bg-dark) !important; }
 .leaflet-control-attribution { display: none !important; }
 .leaflet-tile { filter: brightness(0.85) saturate(0.7); }
@@ -686,6 +834,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
 @keyframes glow-pulse {
   0%, 100% { filter: drop-shadow(0 0 20px rgba(252,211,77,0.6)); }
   50% { filter: drop-shadow(0 0 50px rgba(252,211,77,1)); }
+}
+@keyframes navDotPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(249,115,22,0.8); }
+  50% { opacity: 0.5; box-shadow: 0 0 4px rgba(249,115,22,0.3); }
 }
 
 /* ───────────── 17. RESPONSIVE ───────────── */

@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { initSimMap, updateMapOverlay, getTemperatureColor } from '../visuals/map.js'
 import { calculateTemperature, getZoneData } from '../simulation/engine.js'
 import { initChart, updateChart } from '../simulation/chart.js'
+import { initTicker, updateTicker } from '../simulation/ticker.js'
 import { fetchWeather } from '../utils/api.js'
 
 let ambientTemp = 32
@@ -10,6 +11,7 @@ let cityLat = 12.9716
 let cityLon = 77.5946
 let chart = null
 let simMap = null
+let useTicker = false
 
 const params = { greenery: 40, density: 60, airflow: 30, reflectivity: 25 }
 
@@ -20,7 +22,10 @@ export async function initSimulation() {
     scrollTrigger: { trigger: '#s8', start: 'top 90%' },
   })
 
-  // Init map and chart
+  // Detect which page we're on
+  useTicker = !!document.getElementById('impact-ticker')
+
+  // Init map and chart/ticker
   ScrollTrigger.create({
     trigger: '#s8',
     start: 'top 90%',
@@ -28,11 +33,30 @@ export async function initSimulation() {
     onEnter: () => {
       setTimeout(() => {
         simMap = initSimMap('sim-map')
-        chart   = initChart('impact-chart')
+        if (useTicker) {
+          initTicker('impact-ticker')
+        } else {
+          chart = initChart('impact-chart')
+        }
         runSimulation()
       }, 200)
     },
   })
+
+  // On simulator page, #s8 may already be in view — init proactively
+  if (useTicker) {
+    const s8 = document.getElementById('s8')
+    if (s8) {
+      const rect = s8.getBoundingClientRect()
+      if (rect.top < window.innerHeight * 1.2) {
+        setTimeout(() => {
+          if (!simMap) simMap = initSimMap('sim-map')
+          if (!document.querySelector('.ticker-row')) initTicker('impact-ticker')
+          runSimulation()
+        }, 400)
+      }
+    }
+  }
 
   // Sliders
   const sliders = [
@@ -112,8 +136,12 @@ function runSimulation() {
     }
   }
 
-  // Update chart
-  if (chart) updateChart(zones.before, zones.after)
+  // Update chart or ticker
+  if (useTicker) {
+    updateTicker(zones.before, zones.after)
+  } else if (chart) {
+    updateChart(zones.before, zones.after)
+  }
 
   // Update map
   if (simMap) updateMapOverlay(cityLat, cityLon, color, result.tAfter)

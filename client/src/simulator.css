@@ -1,0 +1,190 @@
+/* ================================================================
+   SIMULATOR PAGE — Extended Styles
+   ================================================================ */
+
+/* ── Simulator page nav ── */
+.sim-page-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2.5rem;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.45rem 1.1rem 0.45rem 0.85rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  transition: all 0.25s;
+}
+.nav-back-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateX(-3px);
+}
+.nav-back-arrow { font-size: 1rem; }
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.nav-brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--heat-orange);
+  box-shadow: 0 0 8px rgba(249,115,22,0.8);
+  animation: brandPulse 2s ease-in-out infinite;
+}
+
+/* Push sections below fixed nav */
+body {
+  padding-top: 60px;
+}
+
+/* s7 needs a bit more space for nav */
+.s-solution {
+  padding-top: 2rem;
+}
+
+/* ── Temperature Impact Infinite Ticker ── */
+.impact-ticker-wrapper {
+  flex: 1;
+  min-height: 180px;
+  overflow: hidden;
+  position: relative;
+  /* fade edges */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+.impact-ticker {
+  display: flex;
+  flex-direction: column;
+  /* animation set dynamically in JS */
+  will-change: transform;
+}
+
+.ticker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+.ticker-row:hover { background: rgba(255,255,255,0.03); }
+
+.ticker-zone {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  min-width: 90px;
+  font-weight: 500;
+}
+
+.ticker-bar-wrap {
+  flex: 1;
+  position: relative;
+  height: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ticker-bar-before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 4px;
+  background: rgba(249,115,22,0.75);
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.ticker-bar-after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 4px;
+  background: rgba(56,189,248,0.75);
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.ticker-temps {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 52px;
+}
+.ticker-temp-before {
+  font-size: 0.68rem;
+  color: var(--heat-orange);
+  font-weight: 700;
+}
+.ticker-temp-after {
+  font-size: 0.68rem;
+  color: var(--cool-cyan);
+  font-weight: 700;
+}
+
+/* Live badge */
+.impact-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cool-green);
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 100px;
+  padding: 0.3rem 0.9rem;
+  margin-top: 0.25rem;
+  align-self: flex-start;
+}
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cool-green);
+  animation: livePulse 1.2s ease-in-out infinite;
+}
+
+/* ── Keyframes ── */
+@keyframes brandPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes livePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
