@@ -25,13 +25,14 @@ export function initImpact() {
 
 function initParticles(canvas) {
   const ctx = canvas.getContext('2d')
-  let raf
+  let raf = null
+  let running = false
 
-  const PARTICLE_COUNT = 60
+  const PARTICLE_COUNT = 35    // was 60
   let particles = []
 
   function resize() {
-    canvas.width = window.innerWidth
+    canvas.width  = window.innerWidth
     canvas.height = window.innerHeight
     particles = createParticles()
   }
@@ -40,15 +41,16 @@ function initParticles(canvas) {
     return Array.from({ length: PARTICLE_COUNT }, () => ({
       x: Math.random() * canvas.width,
       y: canvas.height + Math.random() * 200,
-      r: 1.2 + Math.random() * 2.5,
-      speed: 0.3 + Math.random() * 0.6,
+      r: 1.2 + Math.random() * 2.2,
+      speed: 0.3 + Math.random() * 0.55,
       dx: (Math.random() - 0.5) * 0.5,
-      opacity: 0.2 + Math.random() * 0.6,
+      opacity: 0.2 + Math.random() * 0.55,
       color: Math.random() > 0.5 ? '#38BDF8' : '#22C55E',
     }))
   }
 
   function render() {
+    if (!running) return
     const { width: W, height: H } = canvas
     ctx.clearRect(0, 0, W, H)
 
@@ -72,7 +74,27 @@ function initParticles(canvas) {
     raf = requestAnimationFrame(render)
   }
 
+  function start() {
+    if (running) return
+    running = true
+    render()
+  }
+
+  function stop() {
+    running = false
+    if (raf) { cancelAnimationFrame(raf); raf = null }
+  }
+
+  // IntersectionObserver: pause RAF when section is off-screen
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(e => e.isIntersecting ? start() : stop())
+    },
+    { threshold: 0.05 }
+  )
+  observer.observe(canvas.closest('#s9') || canvas)
+
   window.addEventListener('resize', resize, { passive: true })
   resize()
-  render()
+  // Don't auto-start — observer will start it when visible
 }
