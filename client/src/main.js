@@ -9,8 +9,7 @@ import { initRadiation }  from './sections/radiation.js'
 import { initConduction } from './sections/conduction.js'
 import { initConvection } from './sections/convection.js'
 import { initGap }        from './sections/gap.js'
-import { initSolution }   from './sections/solution.js'
-import { initSimulation } from './sections/simulation.js'
+import { initBridge }     from './sections/bridge.js'
 import { initImpact }     from './sections/impact.js'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -24,8 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initConduction()
   initConvection()
   initGap()
-  initSolution()
-  initSimulation()
+  initBridge()
   initImpact()
 
   ScrollTrigger.refresh()
