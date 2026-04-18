@@ -37,7 +37,6 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
 }
 
 body {
@@ -75,7 +74,21 @@ p  { font-size: clamp(0.95rem, 1.4vw, 1.1rem); color: var(--text-secondary); }
   display: flex;
   align-items: center;
   overflow: hidden;
-  scroll-snap-align: start;
+}
+
+/* Contain paint in heavy animated sections */
+.s-radiation, .s-conduction, .s-convection {
+  contain: layout paint;
+}
+
+.three-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* 5. SHARED COMPONENTS */
