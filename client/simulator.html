@@ -87,6 +87,53 @@
               <div id="hint-greenery" class="metric-hint">Based on 300m radius</div>
             </div>
           </div>
+
+          <!-- Thermodynamic Explanation Engine -->
+          <div class="thermo-engine-section" id="thermo-engine-section" style="display: none;">
+            <h3 class="engine-title">Thermodynamic Analysis</h3>
+            <p id="engine-summary" class="engine-summary">--</p>
+            
+            <button id="btn-explain-pls" class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;">Explain It Pls</button>
+            
+            <div id="explain-loader" class="explain-loader hidden">
+              <div class="explain-bar-bg">
+                <div id="explain-bar-fill" class="explain-bar-fill"></div>
+              </div>
+              <p class="explain-text">Prepping explanation... <span id="explain-pct">0</span>%</p>
+            </div>
+
+            <div id="engine-content" class="hidden">
+              <div class="engine-block">
+                <div class="engine-block-header">
+                  <h4>Radiation</h4>
+                  <span id="rad-lvl" class="engine-badge">-</span>
+                </div>
+                <p id="rad-txt" class="engine-text">-</p>
+              </div>
+              
+              <div class="engine-block">
+                <div class="engine-block-header">
+                  <h4>Conduction</h4>
+                  <span id="cond-lvl" class="engine-badge">-</span>
+                </div>
+                <p id="cond-txt" class="engine-text">-</p>
+              </div>
+              
+              <div class="engine-block">
+                <div class="engine-block-header">
+                  <h4>Convection</h4>
+                  <span id="conv-lvl" class="engine-badge">-</span>
+                </div>
+                <p id="conv-txt" class="engine-text">-</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optimize Cooling Feature (Trigger) -->
+          <div class="cooling-section hidden" id="cooling-section">
+            <button id="btn-optimize-toggle" class="btn btn-ghost" style="width: 100%; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.2);">Optimize Cooling</button>
+          </div>
+
         </div>
       </div>
       
@@ -96,6 +143,46 @@
     <main class="dashboard-map">
       <div id="sim-map" class="map-container"></div>
     </main>
+  </div>
+
+  <!-- Optimize Cooling Modal Overlay -->
+  <div id="cooling-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h2>Optimize Cooling Strategies</h2>
+          <p>Select actions to simulate temperature reduction</p>
+        </div>
+        <button id="btn-modal-x" class="modal-close-x">&times;</button>
+      </div>
+
+      <div class="modal-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="low-cost">Low Cost</button>
+        <button class="filter-btn" data-filter="traditional">Traditional</button>
+      </div>
+
+      <div class="modal-body" id="modal-options-container">
+        <!-- JS fills categories -->
+      </div>
+      <div class="modal-footer">
+        <div class="modal-results">
+          <div class="res-block">
+            <span class="res-label">Current Temp</span>
+            <span id="res-current-temp" class="res-val code-font">--°C</span>
+          </div>
+          <div class="res-block">
+            <span class="res-label">Total Reduction</span>
+            <span id="res-total-red" class="res-val code-font text-green">0.0°C</span>
+          </div>
+          <div class="res-block highlight">
+            <span class="res-label">Estimated New Temp</span>
+            <span id="res-opt-temp" class="res-val code-font text-orange">--°C</span>
+          </div>
+        </div>
+        <button id="btn-modal-close" class="btn btn-primary">Done</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="/src/simulator-main.js"></script>

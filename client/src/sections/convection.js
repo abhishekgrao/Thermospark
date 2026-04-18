@@ -31,7 +31,7 @@ export function initConvection() {
     scrollTrigger: { trigger: '#s5', start: 'top 70%' },
   })
 
-  // Update Three.js scene on scroll
+// Update Three.js scene on scroll
   ScrollTrigger.create({
     trigger: '#s5',
     start: 'top 60%',
@@ -41,4 +41,20 @@ export function initConvection() {
       if (scene) scene.update(self.progress)
     },
   })
+
+  // Hook up the slider
+  const slider = document.getElementById('building-gap-slider')
+  const gapValue = document.getElementById('gap-value')
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value)
+      if (val < 0.3) gapValue.innerText = 'Close'
+      else if (val < 0.7) gapValue.innerText = 'Medium'
+      else gapValue.innerText = 'Far'
+      
+      if (scene && scene.setGap) {
+        scene.setGap(val)
+      }
+    })
+  }
 }
